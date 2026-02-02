@@ -1,0 +1,575 @@
+@keyframes flicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.98; }
+  52% { opacity: 0.95; }
+  54% { opacity: 1; }
+}
+
+@keyframes scanline {
+  0% { transform: translateY(-100%); }
+  100% { transform: translateY(100vh); }
+}
+
+@keyframes glitch {
+  0% { transform: translate(0); filter: none; }
+  20% { transform: translate(-2px, 1px); filter: hue-rotate(90deg); }
+  40% { transform: translate(2px, -1px); filter: saturate(2); }
+  60% { transform: translate(-1px, 2px); filter: hue-rotate(-90deg); }
+  80% { transform: translate(1px, -2px); filter: saturate(0.5); }
+  100% { transform: translate(0); filter: none; }
+}
+
+@keyframes noise {
+  0%, 100% { background-position: 0 0; }
+  10% { background-position: -5% -10%; }
+  20% { background-position: -15% 5%; }
+  30% { background-position: 7% -25%; }
+  40% { background-position: 20% 25%; }
+  50% { background-position: -25% 10%; }
+  60% { background-position: 15% 5%; }
+  70% { background-position: 0% 15%; }
+  80% { background-position: 25% 35%; }
+  90% { background-position: -10% 10%; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes motionPulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 0.6;
+  }
+  50% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes staticNoise {
+  0% { background-position: 0 0; }
+  100% { background-position: 100% 100%; }
+}
+
+:root {
+  --bg-primary: #0a0a0a;
+  --bg-secondary: #111111;
+  --bg-panel: #0d0d0d;
+  --text-primary: #c8c8c8;
+  --text-secondary: #666666;
+  --text-muted: #3a3a3a;
+  --accent-green: #00ff41;
+  --accent-green-dim: #00aa2a;
+  --accent-red: #ff3333;
+  --accent-amber: #ffaa00;
+  --border-color: #222222;
+  --night-vision: #00ff41;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'VT323', monospace;
+  overflow: hidden;
+}
+
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  animation: flicker 0.15s infinite;
+}
+
+.crt-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1000;
+  background: radial-gradient(ellipse at center, transparent 0%, rgba(0,0,0,0.3) 100%);
+}
+
+.global-scanlines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 999;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.15),
+    rgba(0, 0, 0, 0.15) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
+  border-bottom: 1px solid var(--border-color);
+  position: relative;
+  z-index: 10;
+}
+
+.logo-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logo-icon {
+  color: var(--accent-red);
+  font-size: 1.5rem;
+  animation: pulse 1s infinite;
+}
+
+.logo-text {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.75rem;
+  font-weight: 400;
+  letter-spacing: 0.2em;
+  color: var(--text-primary);
+}
+
+.logo-suffix {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1rem;
+  color: var(--accent-green);
+  letter-spacing: 0.15em;
+  border: 1px solid var(--accent-green-dim);
+  padding: 0.15rem 0.5rem;
+  margin-left: 0.25rem;
+}
+
+.logo-sub {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.timestamp {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.5rem;
+  color: var(--accent-green);
+  text-shadow: 0 0 10px var(--accent-green-dim);
+  letter-spacing: 0.15em;
+}
+
+/* Status Bar */
+.status-bar {
+  display: flex;
+  gap: 2rem;
+  align-items: center;
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.status-label {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+}
+
+.status-value {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+}
+
+.status-value.online {
+  color: var(--accent-green);
+}
+
+.status-value.alert {
+  color: var(--accent-red);
+  animation: pulse 0.5s infinite;
+}
+
+.disk-bar {
+  width: 60px;
+  height: 8px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.disk-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-green-dim), var(--accent-amber));
+  transition: width 0.3s;
+}
+
+/* Main Grid */
+.main {
+  flex: 1;
+  padding: 1rem;
+  overflow: hidden;
+}
+
+.camera-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.75rem;
+  height: 100%;
+}
+
+/* Camera Panel */
+.camera-panel {
+  background: var(--bg-panel);
+  border: 1px solid var(--border-color);
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 16 / 10;
+  animation: fadeInUp 0.5s ease-out forwards;
+  opacity: 0;
+}
+
+.camera-panel.glitch {
+  animation: glitch 0.2s ease-in-out;
+}
+
+.camera-panel .scanlines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    rgba(0, 0, 0, 0.1),
+    rgba(0, 0, 0, 0.1) 1px,
+    transparent 1px,
+    transparent 2px
+  );
+  z-index: 5;
+}
+
+.camera-panel .vignette {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 50%, rgba(0,0,0,0.5) 100%);
+  z-index: 4;
+}
+
+.camera-panel .noise {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.03;
+  z-index: 3;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  animation: noise 0.5s steps(10) infinite;
+}
+
+.feed-content {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.scene-placeholder {
+  width: 100%;
+  height: 100%;
+  background:
+    linear-gradient(180deg,
+      rgba(20, 20, 20, 1) 0%,
+      rgba(30, 30, 30, 1) 50%,
+      rgba(15, 15, 15, 1) 100%
+    );
+  position: relative;
+}
+
+/* Simulated scene elements */
+.scene-placeholder::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 30%;
+  background: linear-gradient(0deg, rgba(40, 40, 40, 0.5) 0%, transparent 100%);
+}
+
+.scene-placeholder::after {
+  content: '';
+  position: absolute;
+  top: 20%;
+  left: 10%;
+  width: 30%;
+  height: 40%;
+  background: rgba(50, 50, 50, 0.3);
+  border: 1px solid rgba(60, 60, 60, 0.3);
+}
+
+.night-vision .scene-placeholder {
+  background:
+    linear-gradient(180deg,
+      rgba(0, 20, 0, 1) 0%,
+      rgba(0, 30, 0, 1) 50%,
+      rgba(0, 15, 0, 1) 100%
+    );
+  filter: brightness(1.2);
+}
+
+.night-vision-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 255, 65, 0.05);
+  mix-blend-mode: overlay;
+  z-index: 2;
+}
+
+.motion-dots {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+}
+
+.motion-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border: 1px solid var(--accent-green);
+  animation: motionPulse 2s ease-out infinite;
+}
+
+/* Signal Lost State */
+.signal-lost {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  background: var(--bg-panel);
+}
+
+.signal-lost span {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.25rem;
+  color: var(--accent-amber);
+  letter-spacing: 0.2em;
+  animation: pulse 0.5s infinite;
+  z-index: 3;
+}
+
+.static-noise {
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-radial-gradient(circle at 50% 50%,
+      transparent 0%,
+      rgba(255,255,255,0.03) 1px,
+      transparent 2px
+    );
+  animation: staticNoise 0.1s steps(5) infinite;
+  opacity: 0.5;
+}
+
+/* Offline State */
+.offline {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  z-index: 2;
+  background: var(--bg-panel);
+}
+
+.offline span {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 1.25rem;
+  color: var(--accent-red);
+  letter-spacing: 0.2em;
+}
+
+.offline-sub {
+  font-size: 0.8rem !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Camera Overlay Info */
+.camera-overlay {
+  position: absolute;
+  inset: 0;
+  padding: 0.75rem;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  pointer-events: none;
+}
+
+.camera-id {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: rgba(0, 0, 0, 0.7);
+  padding: 0.25rem 0.5rem;
+  align-self: flex-start;
+  letter-spacing: 0.1em;
+}
+
+.camera-location {
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  letter-spacing: 0.05em;
+}
+
+.camera-time {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.8rem;
+  color: var(--accent-green);
+  margin-top: auto;
+  text-shadow: 0 0 5px var(--accent-green-dim);
+}
+
+.rec-indicator {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+  letter-spacing: 0.1em;
+}
+
+.rec-indicator.recording {
+  color: var(--accent-red);
+}
+
+.rec-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--text-secondary);
+}
+
+.rec-indicator.recording .rec-dot {
+  background: var(--accent-red);
+  animation: pulse 1s infinite;
+  box-shadow: 0 0 8px var(--accent-red);
+}
+
+/* Footer */
+.footer {
+  padding: 0.75rem 1.5rem;
+  text-align: center;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+}
+
+.footer span {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .camera-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .status-bar {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    flex-direction: column;
+    gap: 0.75rem;
+    padding: 1rem;
+  }
+
+  .header-center {
+    position: static;
+    transform: none;
+  }
+
+  .timestamp {
+    font-size: 1.25rem;
+  }
+
+  .camera-grid {
+    grid-template-columns: 1fr;
+    gap: 0.5rem;
+  }
+
+  .camera-panel {
+    aspect-ratio: 16 / 9;
+  }
+
+  .main {
+    padding: 0.5rem;
+    overflow-y: auto;
+  }
+
+  .logo-text {
+    font-size: 1.25rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .logo-suffix {
+    display: none;
+  }
+
+  .camera-id {
+    font-size: 0.75rem;
+  }
+
+  .camera-location {
+    font-size: 0.6rem;
+  }
+}
